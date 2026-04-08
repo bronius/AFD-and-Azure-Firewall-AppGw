@@ -11,9 +11,9 @@ module "virtual_network" {
     AzureFirewallSubnet = {
       name             = "AzureFirewallSubnet"
       address_prefixes = [var.firewall_subnet_address_prefix]
-      # nat_gateway = {
-      #   id = module.nat_gateway.resource_id
-      # }
+      nat_gateway = {
+        id = module.nat_gateway.resource_id
+      }
     }
   }
 
