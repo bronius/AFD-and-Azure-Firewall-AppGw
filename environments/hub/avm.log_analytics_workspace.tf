@@ -5,5 +5,6 @@ module "log_analytics_workspace" {
   name                = local.resource_names.log_analytics_workspace_name
   location            = var.location
   resource_group_name = module.resource_group.name
+  enable_telemetry    = false
   tags                = var.tags
 }

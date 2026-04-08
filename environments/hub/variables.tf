@@ -98,6 +98,16 @@ variable "address_space" {
   default     = "10.0.0.0/16"
 }
 
+variable "appgw_capacity" {
+  type        = number
+  description = "The number of Application Gateway capacity units (fixed scale)."
+  default     = 2
+  validation {
+    condition     = var.appgw_capacity >= 1 && var.appgw_capacity <= 125
+    error_message = "Capacity must be between 1 and 125."
+  }
+}
+
 variable "firewall_subnet_address_prefix" {
   type        = string
   description = "The address prefix for the AzureFirewallSubnet. Minimum /26 required."
@@ -224,36 +234,6 @@ variable "application_rule_collections" {
   }
 }
 
-# ---------------------------------------------------------------------------
-# Spoke VNet
-# ---------------------------------------------------------------------------
-variable "spoke_appgw_subnet_address_prefix" {
-  type        = string
-  description = "The address prefix for the Application Gateway subnet in the spoke VNet. Minimum /26 required."
-  default     = "10.1.2.0/24"
-}
-
-variable "appgw_capacity" {
-  type        = number
-  description = "The number of Application Gateway capacity units (fixed scale)."
-  default     = 2
-  validation {
-    condition     = var.appgw_capacity >= 1 && var.appgw_capacity <= 125
-    error_message = "Capacity must be between 1 and 125."
-  }
-}
-
-variable "spoke_address_space" {
-  type        = string
-  description = "The address space for the spoke virtual network."
-  default     = "10.1.0.0/16"
-}
-
-variable "spoke_workload_subnet_address_prefix" {
-  type        = string
-  description = "The address prefix for the workload subnet in the spoke VNet."
-  default     = "10.1.1.0/24"
-}
 
 # ---------------------------------------------------------------------------
 # Private Link Options (Pattern 2: Front Door Premium → AppGW via Private Link)
@@ -276,16 +256,6 @@ variable "enable_appgw_private_link" {
     Front Door origin + route (Terraform handles this automatically during apply).
   EOT
   default = false
-}
-
-variable "appgw_private_link_subnet_prefix" {
-  type        = string
-  description = "Address prefix for the dedicated Private Link service subnet in the spoke VNet. Minimum /29. Only used when enable_appgw_private_link = true."
-  default     = "10.1.3.0/29"
-  validation {
-    condition     = can(cidrhost(var.appgw_private_link_subnet_prefix, 0))
-    error_message = "Must be a valid CIDR prefix (e.g. 10.1.3.0/29)."
-  }
 }
 
 variable "appgw_private_frontend_ip" {

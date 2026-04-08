@@ -1,5 +1,7 @@
 # Azure Firewall Hub-Spoke — AVM Terraform Deployment
 
+## TODO: Really out of date. Rewrite later to match latest implementation.
+
 Deploys a complete Azure hub-spoke network with Azure Firewall using [Azure Verified Modules (AVM)](https://azure.github.io/Azure-Verified-Modules/) following the **flat file-per-resource** pattern recommended by the AVM team (see [avm-terraform-labs](https://github.com/Azure-Samples/avm-terraform-labs)).
 
 ## Architecture
