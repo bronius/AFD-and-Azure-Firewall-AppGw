@@ -66,7 +66,7 @@ firewall_sku_name = "AZFW_VNet"
 firewall_sku_tier = "Standard" # Options: Basic, Standard, Premium
 
 # Availability Zones (set to [] for no zones)
-availability_zones = ["1", "2", "3"]
+availability_zones = ["1", "2", "3"] # Az Firewall in Zone 3 currently unavailable in southcentralus, but workaround is to set fw.zones = null. Other resources handle this input as provided.
 
 # Optional: SNAT configuration
 # firewall_private_ip_ranges = ["IANAPrivateRanges"]
