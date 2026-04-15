@@ -6,125 +6,125 @@
 #   depends_on          = [module.application_gateway]
 # }
 
-# module "front_door" {
-#   source  = "Azure/avm-res-cdn-profile/azurerm"
-#   version = "0.1.9"
+module "front_door" {
+  source  = "Azure/avm-res-cdn-profile/azurerm"
+  version = "0.1.9"
 
-#   name                = local.resource_names.front_door_name
-#   location            = var.location
-#   resource_group_name = module.resource_group.name
-#   sku                 = "Premium_AzureFrontDoor"
+  name                = local.resource_names.front_door_name
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  sku                 = "Premium_AzureFrontDoor" # Required for connection to private origin
 
-#   front_door_endpoints = {
-#     ep1 = {
-#       name    = "ep-${local.resource_names.front_door_name}"
-#       enabled = true
-#     }
-#   }
+  front_door_endpoints = {
+    ep1 = {
+      name    = "ep-${local.resource_names.front_door_name}"
+      enabled = true
+    }
+  }
 
-#   front_door_origin_groups = {
-#     appgw = {
-#       name = "og-appgw"
-#       load_balancing = {
-#         lb1 = {
-#           additional_latency_in_milliseconds = 50
-#           sample_size                        = 4
-#           successful_samples_required        = 3
-#         }
-#       }
-#       health_probe = {
-#         hp1 = {
-#           interval_in_seconds = 100
-#           path                = "/"
-#           protocol            = "Http"
-#           request_type        = "HEAD"
-#         }
-#       }
-#     }
-#   }
+  # front_door_origin_groups = {
+  #   appgw = {
+  #     name = "og-appgw"
+  #     load_balancing = {
+  #       lb1 = {
+  #         additional_latency_in_milliseconds = 50
+  #         sample_size                        = 4
+  #         successful_samples_required        = 3
+  #       }
+  #     }
+  #     health_probe = {
+  #       hp1 = {
+  #         interval_in_seconds = 100
+  #         path                = "/"
+  #         protocol            = "Http"
+  #         request_type        = "HEAD"
+  #       }
+  #     }
+  #   }
+  # }
 
-#   # Origin points to the Application Gateway.
-#   # Pattern 1 (default): public IP, no private link.
-#   # Pattern 2 (enable_appgw_private_link = true): this block is empty {}; the
-#   # private-link origin below (azurerm_cdn_frontdoor_origin.appgw_private) takes over.
-#   front_door_origins = var.enable_appgw_private_link ? {} : {
-#     appgw = {
-#       name                           = "origin-appgw"
-#       origin_group_key               = "appgw"
-#       host_name                      = data.azurerm_public_ip.appgw.ip_address
-#       certificate_name_check_enabled = false
-#       enabled                        = true
-#       http_port                      = 80
-#       https_port                     = 443
-#       priority                       = 1
-#       weight                         = 1000
-#     }
-#   }
+  # # Origin points to the Application Gateway.
+  # # Pattern 1 (default): public IP, no private link.
+  # # Pattern 2 (enable_appgw_private_link = true): this block is empty {}; the
+  # # private-link origin below (azurerm_cdn_frontdoor_origin.appgw_private) takes over.
+  # front_door_origins = var.enable_appgw_private_link ? {} : {
+  #   appgw = {
+  #     name                           = "origin-appgw"
+  #     origin_group_key               = "appgw"
+  #     host_name                      = data.azurerm_public_ip.appgw.ip_address
+  #     certificate_name_check_enabled = false
+  #     enabled                        = true
+  #     http_port                      = 80
+  #     https_port                     = 443
+  #     priority                       = 1
+  #     weight                         = 1000
+  #   }
+  # }
 
-#   # Route: Pattern 1 only. When enable_appgw_private_link = true this is empty
-#   # and the raw azurerm_cdn_frontdoor_route.private_link resource below takes over.
-#   front_door_routes = var.enable_appgw_private_link ? {} : {
-#     default = {
-#       name                   = "route-default"
-#       endpoint_key           = "ep1"
-#       origin_group_key       = "appgw"
-#       origin_keys            = ["appgw"]
-#       supported_protocols    = ["Http", "Https"]
-#       patterns_to_match      = ["/*"]
-#       https_redirect_enabled = false
-#       forwarding_protocol    = "HttpOnly"
-#       link_to_default_domain = true
-#     }
-#   }
+  # # Route: Pattern 1 only. When enable_appgw_private_link = true this is empty
+  # # and the raw azurerm_cdn_frontdoor_route.private_link resource below takes over.
+  # front_door_routes = var.enable_appgw_private_link ? {} : {
+  #   default = {
+  #     name                   = "route-default"
+  #     endpoint_key           = "ep1"
+  #     origin_group_key       = "appgw"
+  #     origin_keys            = ["appgw"]
+  #     supported_protocols    = ["Http", "Https"]
+  #     patterns_to_match      = ["/*"]
+  #     https_redirect_enabled = false
+  #     forwarding_protocol    = "HttpOnly"
+  #     link_to_default_domain = true
+  #   }
+  # }
 
-#   enable_telemetry = false
-#   tags             = var.tags
-# }
+  enable_telemetry = false
+  tags             = var.tags
+}
 
-# # WAF policy — Premium DRS 2.0 + Bot Manager 1.0, Prevention mode
-# # Note: azurerm_cdn_frontdoor_firewall_policy name must be alphanumeric only (no hyphens).
-# resource "azurerm_cdn_frontdoor_firewall_policy" "waf" {
-#   name                              = replace(local.resource_names.waf_front_door_policy_name, "-", "")
-#   resource_group_name               = module.resource_group.name
-#   sku_name                          = "Premium_AzureFrontDoor"
-#   enabled                           = true
-#   mode                              = "Prevention"
-#   custom_block_response_status_code = 403
+# WAF policy — Premium DRS 2.0 + Bot Manager 1.0, Prevention mode
+# Note: azurerm_cdn_frontdoor_firewall_policy name must be alphanumeric only (no hyphens).
+resource "azurerm_cdn_frontdoor_firewall_policy" "waf" {
+  name                              = replace(local.resource_names.waf_front_door_policy_name, "-", "")
+  resource_group_name               = module.resource_group.name
+  sku_name                          = "Premium_AzureFrontDoor"
+  enabled                           = true
+  mode                              = "Prevention"
+  custom_block_response_status_code = 403
 
-#   managed_rule {
-#     type    = "DefaultRuleSet"
-#     version = "1.0"
-#     action  = "Block"
-#   }
+  managed_rule {
+    type    = "DefaultRuleSet"
+    version = "1.0"
+    action  = "Block"
+  }
 
-#   managed_rule {
-#     type    = "Microsoft_BotManagerRuleSet"
-#     version = "1.0"
-#     action  = "Block"
-#   }
+  managed_rule {
+    type    = "Microsoft_BotManagerRuleSet"
+    version = "1.0"
+    action  = "Block"
+  }
 
-#   # Custom rule — geo-block Russia (RU). Evaluated before managed rules (priority 100).
-#   # To add more countries, append additional values to the match_values list
-#   # using ISO 3166-1 alpha-2 codes, e.g. "CN", "KP", "IR".
-#   custom_rule {
-#     name                           = "GeoBlockRussia"
-#     enabled                        = true
-#     priority                       = 100
-#     rate_limit_duration_in_minutes = 1
-#     rate_limit_threshold           = 0
-#     type                           = "MatchRule"
-#     action                         = "Block"
+  # Custom rule — geo-block Russia (RU). Evaluated before managed rules (priority 100).
+  # To add more countries, append additional values to the match_values list
+  # using ISO 3166-1 alpha-2 codes, e.g. "CN", "KP", "IR".
+  custom_rule {
+    name                           = "GeoBlockRussia"
+    enabled                        = true
+    priority                       = 100
+    rate_limit_duration_in_minutes = 1
+    rate_limit_threshold           = 0
+    type                           = "MatchRule"
+    action                         = "Block"
 
-#     match_condition {
-#       match_variable     = "SocketAddr"
-#       operator           = "GeoMatch"
-#       negation_condition = false
-#       match_values       = ["RU"]
-#     }
-#   }
+    match_condition {
+      match_variable     = "SocketAddr"
+      operator           = "GeoMatch"
+      negation_condition = false
+      match_values       = ["RU"]
+    }
+  }
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
 
 # # Resolve the AFD endpoint ID created by the module (needed for security policy association)
 # data "azurerm_cdn_frontdoor_endpoint" "ep1" {

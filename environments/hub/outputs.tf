@@ -23,7 +23,7 @@ output "resource_ids" {
     spoke_route_tables      = [module.spoke_spoke1.route_table_id, module.spoke_spoke2.route_table_id]
     spoke_peerings          = [module.spoke_spoke1.peering_id, module.spoke_spoke2.peering_id]
     # application_gateway     = module.application_gateway.resource_id
-    # front_door              = module.front_door.resource_id
+    front_door              = module.front_door.resource_id
   }
 }
 
